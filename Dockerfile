@@ -12,14 +12,13 @@ RUN curl -L -o /tmp/kpack https://github.com/vmware-tanzu/kpack-cli/releases/dow
 RUN curl -L -o /tmp/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
 	chmod a+x /tmp/kubectl
 
-FROM --platform=${BUILDPLATFORM} alpine:3.16.2
+FROM --platform=${BUILDPLATFORM} ubuntu:20.04
 LABEL maintainer="Gareth Evans <gareth@bryncynfelin.co.uk>"
 
 COPY --from=build-stage0 /tmp/kpack /usr/bin/kpack
 COPY --from=build-stage0 /tmp/kubectl /usr/bin/kubectl
 
 COPY github-actions-entrypoint.sh /usr/bin/github-actions-entrypoint.sh
-
 
 ENTRYPOINT [ "/usr/bin/kpack" ]
 CMD ["--help"]

@@ -5,6 +5,16 @@ branding:
   icon: 'tag'
   color: 'blue'
 inputs:
+  # auth
+  server:
+    description: 'Address of the server to create the kpack resource'
+    required: true
+  token:
+    description: ''
+    required: true
+  ca_cert:  
+    description: ''
+    required: true
   destination:
     description: 'The full name of the image name to be built'
     required: true
