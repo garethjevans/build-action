@@ -15,13 +15,13 @@ inputs:
   ca_cert:  
     description: ''
     required: true
+  namespace:
+    description: 'Name of the developer workspace to perform builds'
+    required: true
+  # Image configuration  
   destination:
     description: 'The full name of the image name to be built'
     required: true
-  tag:
-    description: 'The tag for the image'
-    required: false
-    default: 'latest'
   context:
     description: ''
     required: false
