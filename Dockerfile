@@ -9,7 +9,7 @@ COPY . ./
 
 RUN go build -o builder main.go
 
-FROM --platform=${BUILDPLATFORM} alpine:3.16.2
+FROM --platform=${BUILDPLATFORM} ubuntu:20.04
 LABEL maintainer="Gareth Evans <gareth@bryncynfelin.co.uk>"
 
 COPY --from=build-stage0 /root/builder /usr/bin/builder
