@@ -194,7 +194,10 @@ func main() {
 func StreamPodLogs(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) {
 	go func() {
 		st := logs.SternTailer{}
-		st.Tail(ctx, clientSet, namespace, podName)
+		err := st.Tail(ctx, clientSet, namespace, podName)
+		if err != nil {
+			log.Fatalf("issue streaming logs: %s", err)
+		}
 	}()
 }
 

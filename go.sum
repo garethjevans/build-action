@@ -44,8 +44,8 @@ github.com/evanphx/json-patch v5.6.0+incompatible h1:jBYDEEiFBPxA0v50tFdvOzQQTCv
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/flowstack/go-jsonschema v0.1.1/go.mod h1:yL7fNggx1o8rm9RlgXv7hTBWxdBM0rVwpMwimd3F3N0=
-github.com/garethjevans/stern v0.0.0-20221005144721-4976365c18e6 h1:Qw5HsrLKx4xDidNfMvRqg4QSXO5DPbATtzBAQi/nn1g=
-github.com/garethjevans/stern v0.0.0-20221005144721-4976365c18e6/go.mod h1:5qhz+UIwd90ml9+kErTCQkHvEKuQfsLrH3f0taaUnvc=
+github.com/garethjevans/stern v0.0.0-20221006121654-f48ed0860856 h1:d1E7rxfJsJu9qffbZ1pXFeOWhasNId0yduhdJMtjG0A=
+github.com/garethjevans/stern v0.0.0-20221006121654-f48ed0860856/go.mod h1:5qhz+UIwd90ml9+kErTCQkHvEKuQfsLrH3f0taaUnvc=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-logr/logr v1.2.0/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=
 github.com/go-logr/logr v1.2.3 h1:2DntVwHkVopvECVRSlL5PSo9eG+cAkDCuckLubN+rq0=

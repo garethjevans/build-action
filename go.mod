@@ -62,4 +62,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace github.com/stern/stern => github.com/garethjevans/stern v0.0.0-20221005144721-4976365c18e6
+replace github.com/stern/stern => github.com/garethjevans/stern v0.0.0-20221006121654-f48ed0860856
