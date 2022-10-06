@@ -53,15 +53,15 @@ func (s *SternTailer) Tail(ctx context.Context, clientSet *kubernetes.Clientset,
 		ContainerQuery: regexp.MustCompile(".*"),
 		ContainerStates: []stern.ContainerState{
 			stern.RUNNING,
-			stern.TERMINATED,
 		},
 		InitContainers: true,
-		Since:          10 * time.Second,
+		Since:          1 * time.Second,
 		PodQuery:       regexp.MustCompile(podName),
 		FieldSelector:  fields.Everything(),
 		Template:       parsedTemplate,
 		Out:            os.Stdout,
 		ErrOut:         os.Stderr,
+		Follow:         true,
 	}
 
 	return Run(ctx, clientSet, &configStern)

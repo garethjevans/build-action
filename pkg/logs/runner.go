@@ -89,13 +89,15 @@ func Run(ctx context.Context, clientSet *kubernetes.Clientset, config *stern.Con
 				if tail.IsActive() {
 					continue
 				} else {
-					// fmt.Printf("tail %s finished\n", tail)
+					//
+					fmt.Printf("::endgroup::\n")
 					tail.Close()
 					clearTail(targetID)
 				}
 			}
 
-			fmt.Printf("Tailing container %s\n", p.Container)
+			fmt.Printf("::group::%s\n", p.Container)
+
 			tail := stern.NewTail(clientSet.CoreV1(), p.Node, p.Namespace, p.Pod, p.Container, config.Template, config.Out, config.ErrOut, &stern.TailOptions{
 				Timestamps:   config.Timestamps,
 				Location:     config.Location,
