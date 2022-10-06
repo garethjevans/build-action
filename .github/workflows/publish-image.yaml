@@ -2,7 +2,7 @@ name: Build and Publish
 
 on:
   push:
-    branches: [convert-to-golang]
+    branches: [main]
 
 jobs:
   build-and-push-docker-image:
@@ -30,7 +30,7 @@ jobs:
         with:
           context: .
           tags: |
-            ghcr.io/garethjevans/build-action:convert-to-golang
+            ghcr.io/garethjevans/build-action:main
           push: true
 
       - name: Image digest

@@ -1,11 +1,11 @@
 ---
-name: supply-chain
+name: build-and-test
 
 on:
   push:
     branches:
       - main
-  pull_request:
+  pull_request:      
 
 jobs:
   default:
@@ -18,7 +18,11 @@ jobs:
 
       - uses: actions/setup-go@v2
         with:
-          go-version: '1.18'
+          go-version: '1.19'
+
+      - name: Build
+        run: go build ./...  
 
       - name: Test
         run: go test ./...
+
