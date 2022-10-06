@@ -34,21 +34,14 @@ type SternTailer struct {
 }
 
 func (s *SternTailer) Tail(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) error {
-	t := "{{color .ContainerColor .PodName}}{{color .PodColor \"[\"}}{{color .PodColor .ContainerName}}{{color .PodColor \"]\"}} {{.Message}}\n"
+	t := "{{color .PodColor \"[\"}}{{color .PodColor .ContainerName}}{{color .PodColor \"]\"}} {{.Message}}\n"
 
-	funs := map[string]interface{}{
-		//"json": func(in interface{}) (string, error) {
-		//	b, err := json.Marshal(in)
-		//	if err != nil {
-		//		return "", err
-		//	}
-		//	return string(b), nil
-		//},
+	functions := map[string]interface{}{
 		"color": func(color color.Color, text string) string {
 			return color.SprintFunc()(text)
 		},
 	}
-	template, err := template.New("log").Funcs(funs).Parse(t)
+	parsedTemplate, err := template.New("log").Funcs(functions).Parse(t)
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +59,7 @@ func (s *SternTailer) Tail(ctx context.Context, clientSet *kubernetes.Clientset,
 		Since:          10 * time.Second,
 		PodQuery:       regexp.MustCompile(podName),
 		FieldSelector:  fields.Everything(),
-		Template:       template,
+		Template:       parsedTemplate,
 		Out:            os.Stdout,
 		ErrOut:         os.Stderr,
 	}

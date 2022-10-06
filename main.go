@@ -17,6 +17,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const sleepTimeBetweenChecks = 3
+
 var (
 	v1alpha2Builds         = schema.GroupVersionResource{Group: "kpack.io", Version: "v1alpha2", Resource: "builds"}
 	v1alpha2ClusterBuilder = schema.GroupVersionResource{Group: "kpack.io", Version: "v1alpha2", Resource: "clusterbuilders"}
@@ -49,23 +51,23 @@ func CreateBuild(ctx context.Context, client dynamic.Interface, namespace string
 	return created.GetName(), nil
 }
 
-func GetBuild(ctx context.Context, client dynamic.Interface, namespace string, build string) (string, string, bool, error) {
+func GetBuild(ctx context.Context, client dynamic.Interface, namespace string, build string) (string, string, error) {
 	got, err := client.Resource(v1alpha2Builds).Namespace(namespace).Get(ctx, build, metav1.GetOptions{})
 	if err != nil {
-		return "", "", false, err
+		return "", "", err
 	}
 
 	podName, _, err := unstructured.NestedString(got.Object, "status", "podName")
 	if err != nil {
-		return "", "", false, err
+		return "", "", err
 	}
 
 	latestImage, _, err := unstructured.NestedString(got.Object, "status", "latestImage")
 	if err != nil {
-		return "", "", false, err
+		return "", "", err
 	}
 
-	return podName, latestImage, false, nil
+	return podName, latestImage, nil
 }
 
 func main() {
@@ -73,7 +75,7 @@ func main() {
 	server := os.Getenv("SERVER")
 	namespace := MustGetEnv("NAMESPACE")
 	token := os.Getenv("TOKEN")
-	
+
 	gitRepo := fmt.Sprintf("%s/%s", MustGetEnv("GITHUB_SERVER_URL"), MustGetEnv("GITHUB_REPOSITORY"))
 	gitSha := MustGetEnv("GITHUB_SHA")
 	tag := MustGetEnv("TAG")
@@ -118,13 +120,6 @@ func main() {
 		panic(err)
 	}
 
-	// TODO also configure...
-	// spec:
-	//  cache:
-	//    volume:
-	//      persistentVolumeClaimName: gevans-petclinic-build-rhk6t-cache
-	//  resources: {}
-
 	build := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "kpack.io/v1alpha2",
@@ -159,30 +154,29 @@ func main() {
 		panic(err)
 	}
 
-	log.Println("Starting build", name)
-
 	for {
-		podName, _, buildCompleted, err := GetBuild(ctx, dynamicClient, namespace, name)
+		var podName string
+		podName, _, err = GetBuild(ctx, dynamicClient, namespace, name)
 		if err != nil {
 			panic(err)
 		}
 
-		if buildCompleted {
-			break
-		}
-
 		if podName != "" {
-			fmt.Printf("Building... podName=%s\n", podName)
+			fmt.Printf("[DEBUG] Building... podName=%s\n", podName)
 			err = GetPodLogs(ctx, client, namespace, podName)
 			if err != nil {
 				panic(err)
 			}
 			break
 		}
-		time.Sleep(2 * time.Second)
+
+		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
 
-	_, latestImage, _, err := GetBuild(ctx, dynamicClient, namespace, name)
+	fmt.Printf("[DEBUG] Checking build complete?")
+
+	var latestImage string
+	_, latestImage, err = GetBuild(ctx, dynamicClient, namespace, name)
 	if err != nil {
 		panic(err)
 	}

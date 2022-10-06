@@ -33,12 +33,8 @@ func clearTail(targetID string) {
 
 // Run starts the main run loop
 func Run(ctx context.Context, clientSet *kubernetes.Clientset, config *stern.Config) error {
-	var namespaces []string
-	// A specific namespace is ignored if all-namespaces is provided
-
-	namespaces = config.Namespaces
-	if len(namespaces) > 1 {
-		return fmt.Errorf("only single namespace supported, got %s", namespaces)
+	if len(config.Namespaces) > 1 {
+		return fmt.Errorf("only single namespace supported, got %s", config.Namespaces)
 	}
 
 	added := make(chan *stern.Target)
@@ -50,7 +46,7 @@ func Run(ctx context.Context, clientSet *kubernetes.Clientset, config *stern.Con
 	defer close(errCh)
 
 	a, r, err := stern.Watch(ctx,
-		clientSet.CoreV1().Pods(namespaces[0]),
+		clientSet.CoreV1().Pods(config.Namespaces[0]),
 		config.PodQuery,
 		config.ExcludePodQuery,
 		config.ContainerQuery,
@@ -93,7 +89,7 @@ func Run(ctx context.Context, clientSet *kubernetes.Clientset, config *stern.Con
 				if tail.IsActive() {
 					continue
 				} else {
-					fmt.Printf("tail %s finished\n", tail)
+					// fmt.Printf("tail %s finished\n", tail)
 					tail.Close()
 					clearTail(targetID)
 				}
@@ -106,7 +102,7 @@ func Run(ctx context.Context, clientSet *kubernetes.Clientset, config *stern.Con
 				SinceSeconds: int64(config.Since.Seconds()),
 				Exclude:      config.Exclude,
 				Include:      config.Include,
-				Namespace:    config.AllNamespaces || len(namespaces) > 1,
+				Namespace:    config.AllNamespaces || len(config.Namespaces) > 1,
 				TailLines:    config.TailLines,
 				Follow:       config.Follow,
 			})
