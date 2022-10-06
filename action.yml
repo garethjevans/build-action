@@ -37,5 +37,5 @@ outputs:
     description: 'The tag version of the built image'  
 runs:
   using: 'docker'
-  image: 'docker://garethjevans/build-action:latest'
+  image: 'docker://ghcr.io/garethjevans/build-action:convert-to-golang'
   entrypoint: 'github-actions-entrypoint.sh'

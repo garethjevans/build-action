@@ -18,7 +18,6 @@ package logs
 
 import (
 	"context"
-	"encoding/json"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"os"
@@ -35,16 +34,16 @@ type SternTailer struct {
 }
 
 func (s *SternTailer) Tail(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) error {
-	containerQuery := regexp.MustCompile(".*")
 	t := "{{color .ContainerColor .PodName}}{{color .PodColor \"[\"}}{{color .PodColor .ContainerName}}{{color .PodColor \"]\"}} {{.Message}}\n"
+
 	funs := map[string]interface{}{
-		"json": func(in interface{}) (string, error) {
-			b, err := json.Marshal(in)
-			if err != nil {
-				return "", err
-			}
-			return string(b), nil
-		},
+		//"json": func(in interface{}) (string, error) {
+		//	b, err := json.Marshal(in)
+		//	if err != nil {
+		//		return "", err
+		//	}
+		//	return string(b), nil
+		//},
 		"color": func(color color.Color, text string) string {
 			return color.SprintFunc()(text)
 		},
@@ -58,7 +57,7 @@ func (s *SternTailer) Tail(ctx context.Context, clientSet *kubernetes.Clientset,
 		Namespaces:     []string{namespace},
 		Location:       time.Local,
 		LabelSelector:  labels.Everything(),
-		ContainerQuery: containerQuery,
+		ContainerQuery: regexp.MustCompile(".*"),
 		ContainerStates: []stern.ContainerState{
 			stern.RUNNING,
 			stern.TERMINATED,

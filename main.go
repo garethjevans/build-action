@@ -73,11 +73,10 @@ func main() {
 	server := os.Getenv("SERVER")
 	namespace := MustGetEnv("NAMESPACE")
 	token := os.Getenv("TOKEN")
-
-	// FIXME hardcoded values
-	gitRepo := "https://github.com/garethjevans/gevans-petclinic"
-	gitSha := "a17563c334c142744bcbfd6c3b07c6cb19a3493f"
-	tag := "gcr.io/rawlingsj/gevans-petclinic-something:latest"
+	
+	gitRepo := fmt.Sprintf("%s/%s", MustGetEnv("GITHUB_SERVER_URL"), MustGetEnv("GITHUB_REPOSITORY"))
+	gitSha := MustGetEnv("GITHUB_SHA")
+	tag := MustGetEnv("TAG")
 
 	decodedCaCert, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {
