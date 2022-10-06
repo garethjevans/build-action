@@ -162,33 +162,40 @@ func main() {
 		}
 
 		if podName != "" {
-			fmt.Printf("[DEBUG] Building... podName=%s\n", podName)
-			err = GetPodLogs(ctx, client, namespace, podName)
-			if err != nil {
-				panic(err)
-			}
+			fmt.Printf("[DEBUG] Building... podName=%s, starting streaming\n", podName)
+			StreamPodLogs(ctx, client, namespace, podName)
 			break
 		}
 
 		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
 
-	fmt.Printf("[DEBUG] Checking build complete?")
+	// fmt.Printf("[DEBUG] Checking build complete?")
 
-	var latestImage string
-	_, latestImage, err = GetBuild(ctx, dynamicClient, namespace, name)
-	if err != nil {
-		panic(err)
-	}
+	for {
+		// fmt.Printf("ping...\n")
+		var latestImage string
+		_, latestImage, err = GetBuild(ctx, dynamicClient, namespace, name)
+		if err != nil {
+			panic(err)
+		}
 
-	if latestImage != "" {
-		fmt.Printf("::set-output name=name::%s\n", latestImage)
+		// FIXME handle the failure scenario here
+
+		if latestImage != "" {
+			fmt.Printf("::set-output name=name::%s\n", latestImage)
+			break
+		}
+
+		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
 }
 
-func GetPodLogs(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) error {
-	st := logs.SternTailer{}
-	return st.Tail(ctx, clientSet, namespace, podName)
+func StreamPodLogs(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) {
+	go func() {
+		st := logs.SternTailer{}
+		st.Tail(ctx, clientSet, namespace, podName)
+	}()
 }
 
 func MustGetEnv(name string) string {
