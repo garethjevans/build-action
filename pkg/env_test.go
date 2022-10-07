@@ -13,6 +13,7 @@ func TestEnvParsing(t *testing.T) {
 	}
 
 	tests := []test{
+		{input: "", want: map[string]string{}},
 		{input: "BP_JAVA_VERSION=17", want: map[string]string{"BP_JAVA_VERSION": "17"}},
 		{input: "      BP_JAVA_VERSION=17", want: map[string]string{"BP_JAVA_VERSION": "17"}},
 		{input: "BP_JAVA_VERSION=17     ", want: map[string]string{"BP_JAVA_VERSION": "17"}},
