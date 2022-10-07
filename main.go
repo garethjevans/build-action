@@ -79,6 +79,9 @@ func main() {
 	gitRepo := fmt.Sprintf("%s/%s", MustGetEnv("GITHUB_SERVER_URL"), MustGetEnv("GITHUB_REPOSITORY"))
 	gitSha := MustGetEnv("GITHUB_SHA")
 	tag := MustGetEnv("TAG")
+	env := os.Getenv("ENV_VARS")
+
+	fmt.Println("[DEBUG] env vars", env)
 
 	decodedCaCert, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {

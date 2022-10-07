@@ -7,6 +7,7 @@ export SERVER=${INPUT_SERVER}
 export NAMESPACE=${INPUT_NAMESPACE}
 export TOKEN=${INPUT_TOKEN}
 export TAG=${INPUT_DESTINATION}
+export ENV_VARS=${INPUT_ENV}
 
 /usr/bin/builder
 
