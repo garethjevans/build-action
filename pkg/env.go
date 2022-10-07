@@ -7,7 +7,8 @@ func ParseEnvVars(in string) map[string]string {
 	in = strings.TrimSpace(in)
 
 	for _, field := range strings.Fields(in) {
-		split := strings.SplitN(field, "=", 2)
+		const numberOfFields = 2
+		split := strings.SplitN(field, "=", numberOfFields)
 		m[split[0]] = split[1]
 	}
 
