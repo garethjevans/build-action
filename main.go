@@ -44,7 +44,7 @@ func GetClusterBuilder(ctx context.Context, client dynamic.Interface, name strin
 }
 
 func CreateBuild(ctx context.Context, client dynamic.Interface, namespace string, build *unstructured.Unstructured) (string, error) {
-	fmt.Printf("[DEBUG] creating resource %+v\n", build)
+	fmt.Printf("::debug:: creating resource %+v\n", build)
 	created, err := client.Resource(v1alpha2Builds).Namespace(namespace).Create(ctx, build, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -82,8 +82,14 @@ func main() {
 	gitSha := MustGetEnv("GITHUB_SHA")
 	tag := MustGetEnv("TAG")
 	env := os.Getenv("ENV_VARS")
+	serviceAccountName := os.Getenv("SERVICE_ACCOUNT_NAME")
 
-	fmt.Println("[DEBUG] env vars", env)
+	fmt.Println("::debug:: tag", tag)
+	fmt.Println("::debug:: namespace", namespace)
+	fmt.Println("::debug:: gitRepo", gitRepo)
+	fmt.Println("::debug:: gitSha", gitSha)
+	fmt.Println("::debug:: env", env)
+	fmt.Println("::debug:: serviceAccountName", serviceAccountName)
 
 	decodedCaCert, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {
@@ -140,7 +146,7 @@ func main() {
 				"runImage": map[string]interface{}{
 					"image": runImage,
 				},
-				"serviceAccountName": "default",
+				"serviceAccountName": serviceAccountName,
 				"source": map[string]interface{}{
 					"git": map[string]interface{}{
 						"url":      gitRepo,
@@ -168,7 +174,8 @@ func main() {
 		}
 
 		if podName != "" {
-			fmt.Printf("[DEBUG] Building... podName=%s, starting streaming\n", podName)
+			fmt.Printf("::debug:: build has started\n")
+			fmt.Printf("::debug:: Building... podName=%s, starting streaming\n", podName)
 			StreamPodLogs(ctx, client, namespace, podName)
 			break
 		}
@@ -176,10 +183,8 @@ func main() {
 		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
 
-	// fmt.Printf("[DEBUG] Checking build complete?")
-
 	for {
-		// fmt.Printf("ping...\n")
+		fmt.Printf("::debug:: checking if build is complete...\n")
 		var latestImage string
 		_, latestImage, err = GetBuild(ctx, dynamicClient, namespace, name)
 		if err != nil {
@@ -189,6 +194,7 @@ func main() {
 		// FIXME handle the failure scenario here
 
 		if latestImage != "" {
+			fmt.Printf("::debug:: build is complete")
 			fmt.Printf("::set-output name=name::%s\n", latestImage)
 			break
 		}
@@ -202,6 +208,8 @@ func KeyValueArray(vars map[string]string) []map[string]string {
 	for k, v := range vars {
 		values = append(values, map[string]string{"name": k, "value": v})
 	}
+
+	fmt.Printf("::debug:: parsed environment variables to %s\n", values)
 	return values
 }
 
