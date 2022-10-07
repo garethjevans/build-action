@@ -35,5 +35,5 @@ outputs:
     description: 'The fully qualified name of the built image including version'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/garethjevans/build-action:parse-env'
+  image: 'docker://ghcr.io/garethjevans/build-action:pr-5'
   entrypoint: 'github-actions-entrypoint.sh'
