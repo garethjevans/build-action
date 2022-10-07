@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/garethjevans/build-action/pkg"
 	"github.com/garethjevans/build-action/pkg/logs"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -43,6 +44,7 @@ func GetClusterBuilder(ctx context.Context, client dynamic.Interface, name strin
 }
 
 func CreateBuild(ctx context.Context, client dynamic.Interface, namespace string, build *unstructured.Unstructured) (string, error) {
+	fmt.Printf("[DEBUG] creating resource %+v\n", build)
 	created, err := client.Resource(v1alpha2Builds).Namespace(namespace).Create(ctx, build, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -148,6 +150,7 @@ func main() {
 				"tags": []string{
 					tag,
 				},
+				"env": KeyValueArray(pkg.ParseEnvVars(env)),
 			},
 		},
 	}
@@ -192,6 +195,14 @@ func main() {
 
 		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
+}
+
+func KeyValueArray(vars map[string]string) []map[string]string {
+	var values []map[string]string
+	for k, v := range vars {
+		values = append(values, map[string]string{"name": k, "value": v})
+	}
+	return values
 }
 
 func StreamPodLogs(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) {
