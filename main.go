@@ -13,6 +13,7 @@ import (
 	"k8s.io/client-go/rest"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -136,7 +137,7 @@ func main() {
 			"apiVersion": "kpack.io/v1alpha2",
 			"kind":       "Build",
 			"metadata": map[string]interface{}{
-				"generateName": "gevans-petclinic-build-",
+				"generateName": strings.ReplaceAll(MustGetEnv("GITHUB_REPOSITORY"), "/", "-") + "-",
 				"namespace":    namespace,
 			},
 			"spec": map[string]interface{}{
