@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/garethjevans/build-action/pkg"
 	"github.com/garethjevans/build-action/pkg/logs"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -12,6 +13,7 @@ import (
 	"k8s.io/client-go/rest"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,6 +45,7 @@ func GetClusterBuilder(ctx context.Context, client dynamic.Interface, name strin
 }
 
 func CreateBuild(ctx context.Context, client dynamic.Interface, namespace string, build *unstructured.Unstructured) (string, error) {
+	fmt.Printf("::debug:: creating resource %+v\n", build)
 	created, err := client.Resource(v1alpha2Builds).Namespace(namespace).Create(ctx, build, metav1.CreateOptions{})
 	if err != nil {
 		return "", err
@@ -79,6 +82,15 @@ func main() {
 	gitRepo := fmt.Sprintf("%s/%s", MustGetEnv("GITHUB_SERVER_URL"), MustGetEnv("GITHUB_REPOSITORY"))
 	gitSha := MustGetEnv("GITHUB_SHA")
 	tag := MustGetEnv("TAG")
+	env := os.Getenv("ENV_VARS")
+	serviceAccountName := os.Getenv("SERVICE_ACCOUNT_NAME")
+
+	fmt.Println("::debug:: tag", tag)
+	fmt.Println("::debug:: namespace", namespace)
+	fmt.Println("::debug:: gitRepo", gitRepo)
+	fmt.Println("::debug:: gitSha", gitSha)
+	fmt.Println("::debug:: env", env)
+	fmt.Println("::debug:: serviceAccountName", serviceAccountName)
 
 	decodedCaCert, err := base64.StdEncoding.DecodeString(caCert)
 	if err != nil {
@@ -125,7 +137,7 @@ func main() {
 			"apiVersion": "kpack.io/v1alpha2",
 			"kind":       "Build",
 			"metadata": map[string]interface{}{
-				"generateName": "gevans-petclinic-build-",
+				"generateName": strings.ReplaceAll(MustGetEnv("GITHUB_REPOSITORY"), "/", "-") + "-",
 				"namespace":    namespace,
 			},
 			"spec": map[string]interface{}{
@@ -135,7 +147,7 @@ func main() {
 				"runImage": map[string]interface{}{
 					"image": runImage,
 				},
-				"serviceAccountName": "default",
+				"serviceAccountName": serviceAccountName,
 				"source": map[string]interface{}{
 					"git": map[string]interface{}{
 						"url":      gitRepo,
@@ -145,6 +157,7 @@ func main() {
 				"tags": []string{
 					tag,
 				},
+				"env": KeyValueArray(pkg.ParseEnvVars(env)),
 			},
 		},
 	}
@@ -162,7 +175,8 @@ func main() {
 		}
 
 		if podName != "" {
-			fmt.Printf("[DEBUG] Building... podName=%s, starting streaming\n", podName)
+			fmt.Printf("::debug:: build has started\n")
+			fmt.Printf("::debug:: Building... podName=%s, starting streaming\n", podName)
 			StreamPodLogs(ctx, client, namespace, podName)
 			break
 		}
@@ -170,10 +184,8 @@ func main() {
 		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
 
-	// fmt.Printf("[DEBUG] Checking build complete?")
-
 	for {
-		// fmt.Printf("ping...\n")
+		fmt.Printf("::debug:: checking if build is complete...\n")
 		var latestImage string
 		_, latestImage, err = GetBuild(ctx, dynamicClient, namespace, name)
 		if err != nil {
@@ -183,12 +195,23 @@ func main() {
 		// FIXME handle the failure scenario here
 
 		if latestImage != "" {
+			fmt.Printf("::debug:: build is complete")
 			fmt.Printf("::set-output name=name::%s\n", latestImage)
 			break
 		}
 
 		time.Sleep(sleepTimeBetweenChecks * time.Second)
 	}
+}
+
+func KeyValueArray(vars map[string]string) []map[string]string {
+	var values []map[string]string
+	for k, v := range vars {
+		values = append(values, map[string]string{"name": k, "value": v})
+	}
+
+	fmt.Printf("::debug:: parsed environment variables to %s\n", values)
+	return values
 }
 
 func StreamPodLogs(ctx context.Context, clientSet *kubernetes.Clientset, namespace string, podName string) {
