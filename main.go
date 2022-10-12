@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/garethjevans/build-action/pkg"
 	"github.com/garethjevans/build-action/pkg/logs"
+	"github.com/garethjevans/build-action/pkg/version"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -139,6 +140,9 @@ func main() {
 			"metadata": map[string]interface{}{
 				"generateName": strings.ReplaceAll(MustGetEnv("GITHUB_REPOSITORY"), "/", "-") + "-",
 				"namespace":    namespace,
+				"annotations": map[string]interface{}{
+					"app.kubernetes.io/managed-by": "garethjevans/build-action " + version.Version,
+				},
 			},
 			"spec": map[string]interface{}{
 				"builder": map[string]interface{}{
