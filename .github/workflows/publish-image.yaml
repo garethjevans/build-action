@@ -64,6 +64,8 @@ jobs:
             org.label-schema.url=${{ github.event.repository.html_url }}
             org.label-schema.vcs-ref=${{ github.sha }}
             org.label-schema.build-date=${{ steps.prep.outputs.created }}
+          build-args: |
+            VERSION=${{ steps.prep.outputs.version }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}    

@@ -4,10 +4,12 @@ ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETPLATFORM
 
+ARG VERSION=unknown
+
 WORKDIR /root/
 COPY . ./
 
-RUN go build -o builder main.go
+RUN go build -trimpath -ldflags "-X github.com/garethjevans/build-action/pkg/version.Version=$VERSION" -o builder main.go
 
 FROM --platform=${BUILDPLATFORM} ubuntu:20.04
 LABEL maintainer="Gareth Evans <gareth@bryncynfelin.co.uk>"
