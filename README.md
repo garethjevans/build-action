@@ -1,6 +1,8 @@
 # Build Action
 
-[![Main workflow](https://github.com/garethjevans/build-action/actions/workflows/workflow.yml/badge.svg)](https://github.com/garethjevans/build-action/actions/workflows/workflow.yml)
+[![build-and-test](https://github.com/garethjevans/build-action/actions/workflows/build-and-test.yaml/badge.svg)](https://github.com/garethjevans/build-action/actions/workflows/build-and-test.yaml)
+[![golangci-lint](https://github.com/garethjevans/build-action/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/garethjevans/build-action/actions/workflows/golangci-lint.yml)
+[![Build and Publish](https://github.com/garethjevans/build-action/actions/workflows/publish-image.yaml/badge.svg)](https://github.com/garethjevans/build-action/actions/workflows/publish-image.yaml)
 
 TODO
 
