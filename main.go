@@ -199,7 +199,7 @@ func main() {
 		// FIXME handle the failure scenario here
 
 		if latestImage != "" {
-			fmt.Printf("::debug:: build is complete")
+			fmt.Printf("::debug:: build is complete\n")
 			fmt.Printf("::set-output name=name::%s\n", latestImage)
 			break
 		}
