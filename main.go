@@ -85,6 +85,7 @@ func main() {
 	tag := MustGetEnv("TAG")
 	env := os.Getenv("ENV_VARS")
 	serviceAccountName := os.Getenv("SERVICE_ACCOUNT_NAME")
+	githubOutput := MustGetEnv("GITHUB_OUTPUT")
 
 	fmt.Println("::debug:: tag", tag)
 	fmt.Println("::debug:: namespace", namespace)
@@ -200,7 +201,11 @@ func main() {
 
 		if latestImage != "" {
 			fmt.Printf("::debug:: build is complete\n")
-			fmt.Printf("::set-output name=name::%s\n", latestImage)
+
+			err = Append(githubOutput, fmt.Sprintf("name=%s\n", latestImage))
+			if err != nil {
+				panic(err)
+			}
 			break
 		}
 
@@ -234,4 +239,16 @@ func MustGetEnv(name string) string {
 		log.Fatalf("Environment Var %s must be set", name)
 	}
 	return val
+}
+
+func Append(file string, name string) error {
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if _, err := f.WriteString(name); err != nil {
+		return err
+	}
+	return nil
 }
