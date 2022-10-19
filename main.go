@@ -242,7 +242,8 @@ func MustGetEnv(name string) string {
 }
 
 func Append(file string, name string) error {
-	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	const filePermissions = 0644
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePermissions)
 	if err != nil {
 		return err
 	}
