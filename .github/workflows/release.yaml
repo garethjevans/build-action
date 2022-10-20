@@ -52,7 +52,7 @@ jobs:
             VERSION=${{ steps.prep.outputs.version }}
 
       - name: Validate
-        runs: |
+        run: |
           cat action.yml | yq .runs.image
 
       - uses: Actions-R-Us/actions-tagger@v2.0.2
