@@ -26,6 +26,21 @@ jobs:
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
           echo "created=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
+      - name: Generate Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            docker.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+            quay.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+          flavor: |
+            latest=true
+
       - name: Local Branch
         run: |
           git switch -c ${{ steps.prep.outputs.version }}
@@ -88,3 +103,6 @@ jobs:
           build-args: |
             VERSION=${{ steps.prep.outputs.version }}
 
+      - uses: Actions-R-Us/actions-tagger@2.0.2
+        with:
+          publish_latest_tag: true
