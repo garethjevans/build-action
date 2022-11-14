@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/pkg/errors v0.9.1
 	github.com/stern/stern v1.22.0
-	k8s.io/apimachinery v0.25.3
+	k8s.io/apimachinery v0.25.4
 	k8s.io/client-go v0.25.3
 )
 
